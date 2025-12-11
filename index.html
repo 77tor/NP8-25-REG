@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasjonal prøve i regning - 8. trinn - 2025</title>
+    <style>
+        /* GRUNNLEGGENDE CSS FOR LAYOUT */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 95%;
+            width: 1200px;
+            margin: 5px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header { text-align: center; margin-bottom: 20px; }
+        
+        /* 🔥 NYTT: Gjeninnfører to-kolonne-visningen for spørsmålsinnholdet */
+        .question-content {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 370px;
+        }
+        .question-main { flex: 1; } /* Gjør spørsmålsfeltet fleksibelt */
+        .question-image img {
+            max-width: 100%;
+            height: auto;
+            border: none;
+            border-radius: 4px;
+        }
+        .header h1 {
+            margin-top: 0;
+            margin-bottom: 2px;
+            font-size: 1.3em;
+        }
+        .question-text-explanation {
+            font-size: 1em;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        .question-text-main {
+            font-weight: bold;
+            font-size: 1em;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* NAVIGASJON & PROGRESS */
+        .navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; border-top: 1px solid #ccc; padding-top: 15px; }
+        .navigation button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
+        .navigation button:disabled { background-color: #ccc; cursor: not-allowed; color: #555; }
+        #finish-button { background-color: #007bff; color: white; display: none; }
+        .progress-bar { flex-grow: 1; text-align: center; font-weight: bold; color: #555; }
+        .progress-indicator { color: #007bff; }
+
+        /* RESULTATVISNING */
+        #results-container { margin-top: 20px; }
+        .result-item { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .incorrect-answer { color: #dc3545; font-weight: bold; }
+        .correct-answer { color: #28a745; font-weight: bold; }
+        .result-item .correct-answer-text { display: block; margin-top: 5px; color: #155724; font-style: italic; }
+
+        /* INPUT FELTER (BEHOLDT FRA BEGGE KODENE) */
+        .question-type-text input[type="text"] {
+            width: 300px; max-width: 98%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;
+        }
+        .question-type-dropdown { display: flex; flex-wrap: wrap; gap: 15px; }
+        .question-type-multi-text { display: block; margin-top: 15px; }
+        .multi-text-input-group { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .multi-text-input-group input[type="text"] { max-width: 100px; padding: 8px; font-size: 1em; }
+        .input-prefix, .input-suffix { font-weight: normal; font-size: 1.1em; color: #333; }
+        .incorrect-answer-item { color: #dc3545; display: block; }
+        .text-input-group { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
+        .text-input-group input[type="text"] { max-width: 150px; padding: 8px; font-size: 1em; }
+        .input-suffix { font-weight: bold; color: #333; font-size: 1.1em; }
+        .question-type-dropdown select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-left: 10px; }
+        .dropdown-fill-row { margin-bottom: 10px; }
+        .dropdown-fill-horizontal .dropdown-fill-item { display: inline-flex; align-items: baseline; gap: 5px; margin-right: 10px; }
+        .dropdown-fill-vertical .dropdown-fill-item { display: block; margin-bottom: 10px; }
+        .dropdown-fill-vertical .dropdown-fill-item label { display: inline-block; width: 80px; font-weight: bold; }
+        .question-type-dropdown-container select { padding: 5px 5px; font-size: 1.1em; min-width: 70px; height: auto; border: 1px solid #ccc; border-radius: 5px; }
+        .dropdown-fill-vertical .dropdown-fill-item select { width: 70px; }
+        .mcq-option { display: flex; align-items: center; padding: 10px; margin-bottom: 5px; border: 1px solid #ccc; background: #f9f9f9; min-width: 300px; width: fit-content; cursor: pointer; border-radius: 4px; }
+        .mcq-option:hover { background-color: #eee; }
+        .mcq-option input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .mcq-option.selected { background-color: #d4edda; border-color: #c3e6cb; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 12px 15px; text-align: left; }
+        th { background-color: #e9ecef; font-weight: bold; color: #343a40; }
+        td:first-child { width: 60%; }
+        td:nth-child(2), td:nth-child(3) { text-align: center; width: 20%; }
+        tbody tr:hover { background-color: #f1f1f1; }
+        .question-input table input[type="radio"] { transform: scale(1.2); cursor: pointer; }
+        .drag-drop-table-container { display: flex; justify-content: flex-start; gap: 20px; margin-top: 20px; }
+        .drag-drop-table-container table { table-layout: fixed; width: 300px; margin: 0; }
+        .drag-drop-table-container td { border: 2px solid #ccc; height: 120px; text-align: center; vertical-align: middle; padding: 1px; position: relative; }
+        #source-table td { cursor: grab; background-color: #f8f8f8; transition: opacity 0.3s; }
+        #target-table td { background-color: #e9e9e9; border-style: dashed; color: #999; font-size: 0.9em; cursor: pointer; position: relative; }
+        .drag-item { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1px; }
+        .drag-item img { width: 200px; height: 100px; object-fit: contain; margin-bottom: 5px; }
+        .remove-item { position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; width: 20px; height: 20px; line-height: 20px; text-align: center; cursor: pointer; font-weight: bold; font-size: 0.8em; z-index: 10; }
+        .dragging { opacity: 0.4 !important; border: 2px solid #007bff !important; }
+        .drag-over-cell { background-color: #d4edda !important; border-color: #4CAF50 !important; }
+        .fugl-tabell { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
+        .fugl-tabell th, .fugl-tabell td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .fugl-tabell th { background-color: #f2f2f2; }
+        .fugl-tabell th:first-child, .fugl-tabell td:first-child { width: 20%; }
+        .fugl-tabell th:not(:first-child), .fugl-tabell td:not(:first-child) { width: 20%; text-align: center; }
+        .fugl-tabell select { width: 100%; padding: 5px; border: 1px solid #ccc; }
+        .correct { background-color: #d4edda !important; border-color: #c3e6cb !important; }
+        .incorrect { background-color: #f8d7da !important; border-color: #f5c6cb !important; }
+
+
+        /* NY CSS FOR INTRO-SIDE */
+        #intro-container {
+            padding: 30px;
+            text-align: center;
+            display: block;
+        }
+        #intro-container h2 { color: #007bff; margin-bottom: 20px; }
+        #intro-container p { font-size: 1.1em; line-height: 1.6; margin-bottom: 15px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .name-input-group { margin: 30px 0; }
+        .name-input-group label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 1.2em; }
+        .name-input-group input[type="text"] { padding: 12px; width: 80%; max-width: 350px; border: 2px solid #ccc; border-radius: 6px; font-size: 1.1em; }
+        #start-button { padding: 15px 30px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 1.2em; cursor: pointer; font-weight: bold; transition: background-color 0.3s; }
+        #start-button:hover { background-color: #1e7e34; }
+
+/* Legg til denne nye stilen inne i <style> taggen */
+#score-summary {
+    font-size: 2.2em;      /* Gjør teksten stor */
+    font-weight: bold;     /* Tykk skrift */
+    color: #007bff;        /* F.eks. blå farge for fremheving */
+    margin: 15px 0 25px 0; /* Litt luft over og under */
+    padding: 10px;
+    border-bottom: 3px solid #007bff; /* Legg til en understrek for ekstra fremheving */
+}
+
+/* Du kan også gjøre overskriften større */
+#results-container h2 {
+    font-size: 1.8em;
+    color: #333;
+}
+/* Ny stil for horisontale bildealternativer */
+.question-type-mcq.image-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: flex-start; /* Bedre enn space-between hvis du har færre enn 4 */
+}
+.question-type-mcq.image-options .mcq-option {
+    width: 22%; /* Gir plass til fire alternativer på en rad (med litt margin) */
+    display: block;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc; /* Legg til en synlig ramme rundt hvert alternativ */
+    border-radius: 5px;
+    cursor: pointer;
+}
+.question-type-mcq.image-options .mcq-option img {
+    max-width: 50%; /* Bildet fyller bredden av alternativ-boksen */
+    height: 50px;
+    display: block;
+    margin: 5px auto;
+}
+/* Definisjon av 2x2-layout for Oppgave 3 */
+.grid-2x2-layout {
+    /* Aktiverer CSS Grid for beholderen */
+    display: grid;
+    /* Oppretter to kolonner med lik bredde */
+    grid-template-columns: 1fr 1fr;
+    /* Avstand mellom rutene (horisontalt og vertikalt) */
+    gap: 15px; 
+}
+
+/* Sørger for at hvert valg-container fyller sin rute uten å flyte ut */
+.grid-2x2-layout .choice-container {
+    /* Fjerner eventuelle vertikale marginer som kan påvirke grid-layouten */
+    margin: 0; 
+}
+
+/* Sørger for at bildene tilpasser seg innsiden av knappen */
+.grid-2x2-layout .choice-btn .choice-image {
+    max-width: 100%;
+    height: auto;
+    display: block; 
+}
+
+/* Du kan eventuelt justere bredden på knappen om nødvendig */
+.grid-2x2-layout .choice-btn {
+    width: 100%;
+    /* Sett ønsket høyde eller fjern for automatisk høyde */
+    /* min-height: 150px; */ 
+}
+
+    </style>
+</head>
+<body>
+
+<div class="container" id="test-container">
+    <div class="header">
+        <h1>Nasjonal prøve i regning for 8. trinn - 2025</h1>
+        <p id="sub-header"></p>
+    </div>
+
+    <div id="intro-container">
+        <h2>Velkommen til prøven!</h2>
+        <p>
+            Du trenger blyant og papir ved siden av deg til utregninger.
+        </p>
+        <p>
+            Vennligst fyll inn ditt navn før du starter. Lykke til!
+        </p>
+
+        <div class="name-input-group">
+            <label for="userName">Ditt Navn:</label>
+            <input type="text" id="userName" placeholder="Skriv navnet ditt her" required>
+        </div>
+
+        <button id="start-button" onclick="startTest()">Start Prøven</button>
+    </div>
+    
+    <div id="question-area" style="display: none;">
+        <div class="question-content">
+            <div class="question-main" id="question-main">
+                </div>
+            <div class="question-image" id="question-image">
+                </div>
+        </div>
+    </div>
+    
+    <div id="results-container" style="display: none;">
+    </div>
+
+    <div class="navigation" id="navigation-area" style="display: none;">
+        <button id="prev-button" onclick="navigate(-1)" disabled>← Forrige</button>
+        <div class="progress-bar" id="progress-bar">Laster inn...</div>
+        <button id="next-button" onclick="navigate(1)">Neste →</button>
+        <button id="finish-button" onclick="showResults()">Fullfør prøven</button>
+    </div>
+</div>
+
+
+
+<script>
+    // Din eksisterende JavaScript-kode (TestArray, navigate, renderQuestion, etc.)
+    // må legges inn her.
+    
+    // 🔥 Ny/Oppdatert JavaScript-funksjon for å starte testen
+    function startTest() {
+        const userNameInput = document.getElementById('userName');
+        const userName = userNameInput.value.trim();
+
+        if (userName === "") {
+            alert("Vennligst skriv inn navnet ditt for å starte prøven.");
+            userNameInput.focus();
+            return;
+        }
+
+        // Sett global variabel for brukernavn (Antatt at du har en slik variabel i koden din)
+        window.currentUserName = userName; 
+
+        // 1. Skjul intro-siden
+        document.getElementById('intro-container').style.display = 'none';
+
+        // 2. Vis spørsmålsområdet og navigasjon
+        document.getElementById('question-area').style.display = 'block';
+        document.getElementById('navigation-area').style.display = 'flex';
+        
+        // 3. Start visningen av det første spørsmålet
+        // Antatt at du har en funksjon renderQuestion(0) og en variabel currentQuestionIndex = 0
+        // Du må kanskje legge til denne logikken her.
+        // F.eks.:
+        // renderQuestion(0); 
+    }
+</script>
+</body>
+</html>
+
+
+<script>
+// =========================================================================
+// DEL 2: DATASTRUKTUR FOR SPØRSMÅL OG SVAR (UENDRET)
+// =========================================================================
+const questions = [
+    { id: 1, type: 'text', explanation: "Det tar 24 måneder før en melkekartong brytes ned i naturen. En tyggegummi brytes ned på 5 år i naturen.", questionText: "Hvor mange flere år tar det før en tyggegummi er brutt ned i naturen enn det tar før en melkekartong er brutt ned?",unit: 'år', imageRight: 'bilde_01.jpg', imageWidth: '200px', answer: '3', userAnswer: '' },
+    { id: 2, type: 'mcq', explanation: "20 biler konkurrerte i et rallybil-løp.<br/>Petter hadde den høyeste gjennomsnittsfarten.<br/>Sebastian hadde den høyeste toppfarten.", questionText: "Hvilken av påstandene stemmer?", imageRight: 'bilde_02.jpg', imageWidth: '270px', options: ['Verken Petter eller Sebastian vant.', 'Petter og Sebastian kom likt i mål.', 'Petter vant løpet.', 'Sebastian vant løpet.'], correctIndex: 2, userAnswer: null },
+    { id: 3, type: 'mcq', explanation: "Isak har plantet et solsikkefrø. Han har målt solsikkens høyde hver uke og notert høydene i tabellen.", questionText: "Hvilken av grafene viser hvordan solsikken har vokst?", imageRight: 'bilde_03.jpg', imageWidth: '300px',
+  options: [
+    { type: 'image', value: 'bilde_03_01.jpg', alt: '1' }, 
+    { type: 'image', value: 'bilde_03_02.jpg', alt: '2' }, 
+    { type: 'image', value: 'bilde_03_03.jpg', alt: '3' }, 
+    { type: 'image', value: 'bilde_03_04.jpg', alt: '4' }
+  ], 
+  correctIndex: 0, 
+  userAnswer: null 
+    },
+    { id: 4, type: 'mcq', explanation: "Figuren viser hvordan vi tror temperaturen på jorda har endret seg de siste 500 millioner årene.", questionText: "I hvilken periode var gjennomsnittstemperaturen lavest?", imageRight: 'bilde_04.jpg', imageWidth: '600px', options: ['500–475 millioner år siden', '425–380 millioner år siden', '360–265 millioner år siden', '125–75 millioner år siden'], correctIndex: 2, userAnswer: null },    
+    { id: 5, type: 'true_false_table', explanation: "Figuren viser hvordan vi tror temperaturen på jorda har endret seg de siste 500 millioner årene.", questionText: "Svar på om påstandene er riktige eller gale.", imageRight: 'bilde_05.jpg', imageWidth: '600px', 
+        statements: [
+            { text: "Det har vært flere år med is på polene enn år uten is på polene.", correct: 'Galt' },
+            { text: "De siste 40 millioner årene har det vært is på polene.", correct: 'Riktig' },
+            { text: "Forskjellen mellom den høyeste og laveste gjennomsnittstemperaturen er 35 °C.", correct: 'Galt' },
+            { text: "Det var is på polene for 225 millioner år siden.", correct: 'Galt' },
+        ], 
+        userAnswer: [null, null, null, null], 
+    },
+    { id: 6, type: 'mcq', explanation: "Figuren viser hvordan vi tror temperaturen på jorda har endret seg de siste 500 millioner årene.", questionText: "Omtrent hvor mange millioner år har det vært is på polene i løpet av de siste 500 millioner årene?", imageRight: 'bilde_06.jpg', imageWidth: '600px', options: ['50 millioner år', '150 millioner år', '250 millioner år', '350 millioner år'], correctIndex: 1, userAnswer: null },    
+    { id: 7, type: 'text', explanation: "Peter fortsetter med mønsteret på figuren helt til mønsteret består av 200 klosser totalt.", questionText: "Hvor mange prosent av de 200 klossene er blå?",unit: '%', imageRight: 'bilde_07.jpg', imageWidth: '600px', answer: '20', userAnswer: '' },    
+    { id: 8, type: 'mcq', explanation: "Albert har kjøpt kinobilletter til seg selv og fire venner. Han betalte 675 kr totalt.", questionText: "Hvor mye kostet en kinobillett?", imageRight: 'bilde_08.jpg', imageWidth: '200px', options: ['168 kr', '225 kr', '120 kr', '135 kr'], correctIndex: 3, userAnswer: null },    
+    { id: 9, type: 'text', explanation: "Fredrik skal bake boller. I oppskriften står det at til 24 boller trenger man 160 gram smør. Fredrik tenker at det er nok med 6 boller, og han bestemmer seg for å justere oppskriften ned.", questionText: "Hvor mye smør trenger Fredrik?",unit: 'gram', imageRight: 'bilde_09.jpg', imageWidth: '350px', answer: '40', userAnswer: '' },    
+    { id: 10, type: 'text', explanation: "Henrik Ibsen ble født i 1828. Han ga ut «Peer Gynt» i 1867.", questionText: "Hvor gammel var Henrik Ibsen da han ga ut «Peer Gynt»?",unit: 'år', imageRight: 'bilde_10.jpg', imageWidth: '250px', answer: '39', userAnswer: '' },
+    { id: 11, type: 'text', explanation: "Matrester kan bli til biogass. En buss som går på biogass, kan kjøre 0,5 km på biogass produsert av 2 kg matrester.", questionText: "Hvor mange kilometer kan en buss kjøre på biogass produsert av 18 kg matrester?", unit: 'km', imageRight: 'bilde_11.jpg', imageWidth: '400px', answer: '4,5', userAnswer: '' },
+    { id: 12, type: 'text', explanation: "FN mener at så mye som <math><mfrac><mn>1</mn><mn>3</mn></mfrac></math> av all maten vi produserer i verden, ikke blir spist. Årlig utgjør dette omtrent 1,3 milliarder tonn mat som havner i søpla. Hadde vi klart å utnytte så lite som <math><mfrac><mn>1</mn><mn>4</mn></mfrac></math> av det globale matsvinnet, kunne omtrent 900 millioner mennesker vært mettet.", questionText: "Hvor mange mennesker kunne vært mettet dersom vi hadde klart å utnytte hele det globale matsvinnet?", unit: 'millioner mennesker', imageRight: 'bilde_12.jpg', imageWidth: '550px', answer: '3600', userAnswer: '' },
+    { id: 13, type: 'text', explanation: "Babylon var en by som eksisterte for over tre tusen år siden. Babylonerne brukte et annet tallsystem enn det vi bruker i dag. I tabellen vises noen babylonske tall og verdien i vårt tallsystem.", questionText: "Hvilken verdi har det siste babylonske tallet i vårt tallsystem?", imageRight: 'bilde_13.jpg', imageWidth: '325px', answer: '47', userAnswer: '' },
+    { id: 14, type: 'text', explanation: "Bildet viser et norsk flagg og hvor lange noen deler av flagget er.", questionText: "Hva er arealet av de røde feltene til sammen?", unit: 'cm&#xB2;', imageRight: 'bilde_14.jpg', imageWidth: '500px', answer: '216', userAnswer: '' },    
+    { id: 15, type: 'mcq', explanation: "Prisme kino har 200 seter. Til den neste filmen er det solgt 95 voksenbilletter og 60 barnebilletter.", questionText: "Hvilken av figurene viser fordelingen av billetter og ledige seter?", imageRight: 'bilde_15.jpg', imageWidth: '475px', options: ['A', 'B', 'C', 'D'], correctIndex: 1, userAnswer: null },    
+    { id: 16, type: 'text', explanation: "Makspuls er det høyeste antall slag hjertet kan slå i løpet av ett minutt.<br/>Forskere har funnet ut at denne formelen kan brukes for å beregne makspuls:<br/>Makspuls = 211 – 0,6 ⋅ alder", questionText: "Ut fra denne formelen, hva er makspulsen til en person som er 40 år gammel?", imageRight: 'bilde_16.jpg', imageWidth: '400px', answer: '187', userAnswer: '' },    
+    { id: 17, type: 'mcq', explanation: "Fem ungdommer konkurrerte i spydkast. Alle fikk tre kast hver. I spydkast er det det lengste kastet som teller. Truls kom på førsteplass, og Lucas på tredjeplass.", questionText: "Mathias kom på andreplass. Hvor langt var det tredje kastet hans?", imageRight: 'bilde_17.jpg', imageWidth: '600px', imageMarginTop: '70px', options: ['47,23 m', '42,91 m', '49,98 m', '45,23 m'], correctIndex: 0, userAnswer: null },
+    { id: 18, type: 'text', explanation: "På den store kinodagen er det 50 % rabatt på alle kinobilletter.<br/>5 elever på 8. trinn kjøper billetter til 3 filmer. ", questionText: "Hvor mye sparer de 5 elevene på billettene?", unit: 'kr', imageRight: 'bilde_18.jpg', imageWidth: '500px', imageMarginTop: '70px', answer: '900', userAnswer: '' },
+    { id: 19, type: 'mcq', explanation: "Tabellen viser gjennomsnittlig CO&#x2082;-utslipp per innbygger i fire forskjellige land.", questionText: "Hvilket land har det høyeste totale CO&#x2082;-utslippet?", imageRight: 'bilde_19.jpg', imageWidth: '450px', options: ['Norge', 'Australia', 'Indonesia', 'Sør-Afrika'], correctIndex: 2, userAnswer: null },
+    { id: 20, type: 'mcq', explanation: "Jan har limt fliser på en vegg. Tre av flisene er ikke satt på ennå.", questionText: "Trykk på det bildet som viser hvilke fliser som mangler.", imageRight: 'bilde_20.jpg', imageWidth: '600px', imageMarginTop: '70px',
+  options: [
+    { type: 'image', value: 'bilde_20_01.jpg', alt: '1' }, 
+    { type: 'image', value: 'bilde_20_02.jpg', alt: '2' }, 
+    { type: 'image', value: 'bilde_20_03.jpg', alt: '3' }, 
+    { type: 'image', value: 'bilde_20_04.jpg', alt: '4' }
+  ], 
+  correctIndex: 2, 
+  userAnswer: null 
+    },
+    { id: 21, type: 'mcq', explanation: "I 2024 bor det omtrent 712 000 mennesker i Oslo. Befolkningen i Oslo øker med omtrent 2500 mennesker hvert år.", questionText: "Hvilken formel gir antall mennesker i Oslo de neste årene (antall år = antall år etter 2024)?", imageRight: 'bilde_21.jpg', imageWidth: '400px', options: ['Antall mennesker = 712 000 · antall år + 2500', 'Antall mennesker = 712 000 · antall år - 2500', 'Antall mennesker = 2500 · antall år · 712 000', 'Antall mennesker = 2500 · antall år + 712 000'], correctIndex: 3, userAnswer: null },
+    { id: 22, type: 'mcq', explanation: "Jupiter er den største planeten i solsystemet vårt.<br/>Diameteren til Jupiter er 11 ganger større enn jordas diameter.<br/>Diameteren til Jupiter er samtidig <math><mfrac><mn>1</mn><mn>10</mn></mfrac></math> av diameteren til sola.", questionText: "Hvor mange ganger større er diameteren til sola sammenliknet med diameteren til jorda?", imageRight: 'bilde_22.jpg', imageWidth: '350px', options: ['1,1', '11', '110', '1110'], correctIndex: 2, userAnswer: null },
+    { id: 23, type: 'text', explanation: "Saturn har mange ringer rundt seg. Ringene består hovedsakelig av is og små steiner.<br/>De første ringene ble oppdaget i 1610, mens den siste ringen ble oppdaget i 2009.", questionText: "Hvor mange år gikk det fra de første ringene ble oppdaget til den siste ringen ble oppdaget?", unit: 'år', imageRight: 'bilde_23.jpg', imageWidth: '500px', answer: '399', userAnswer: '' },
+    { id: 24, type: 'text', explanation: "En fabrikk produserer 3600 varer i løpet av en uke. Figurene viser fordelingen av varene som blir produsert, og varene som blir feilprodusert.", questionText: "Hvor mange gensere blir feilprodusert?", imageRight: 'bilde_24.jpg', imageWidth: '800px', answer: '90', userAnswer: '' },
+    { id: 25, type: 'text', explanation: "Kokepunktet til vann varierer med lufttrykket. Når trykket er lavere, er kokepunktet lavere. Lufttrykket blir lavere høyere oppe i fjellet. Tabellen viser kokepunktet til vann ved ulike høyder, målt i meter over havet (moh.).", questionText: "Hva er kokepunktet til vann ved 1500 moh.?", unit: '<sup>o</sup>C', imageRight: 'bilde_25.jpg', imageWidth: '600px', answer: '95', userAnswer: '' },    
+    { id: 26, type: 'text', explanation: "Vågsetra skole skal leie turbuss til alle elevene og lærerne. Det er 295 elever og 32 lærere på skolen.<br/>Det er plass til 60 personer i hver buss.", questionText: "Hvor mange busser må skolen bestille?",unit: 'busser', imageRight: 'bilde_26.jpg', imageWidth: '240px', answer: '6', userAnswer: '' },
+    { id: 27, type: 'dropdown_fill_table', explanation:"Alex har samlet fakta om fire interessante fugler og laget en tabell om dem.", questionText: "Velg riktig navn på kolonnene.", imageRight: 'bilde_27.jpg', imageWidth: '200px', 
+    sentences: [
+        { options: ['Flyvehøyde', 'Vekt', 'Fart', 'Vingespenn'], correct: 'Vingespenn' },
+        { options: ['Flyvehøyde', 'Vekt', 'Fart', 'Vingespenn'], correct: 'Fart' },
+        { options: ['Flyvehøyde', 'Vekt', 'Fart', 'Vingespenn'], correct: 'Vekt' },
+        { options: ['Flyvehøyde', 'Vekt', 'Fart', 'Vingespenn'], correct: 'Flyvehøyde' }
+    ],
+    tableData: [
+        ['Vandrefalk', '110 cm', '390 km/t', '1,5 kg', '1500 m'],
+        ['Andeskondor', '320 cm', '60 km/t', '15 kg', '5000 m'],
+        ['Dvergfluesnapper', '18 cm', '25 km/t', '10 g', '20 m'],
+        ['Kongeørn', '220 cm', '130 km/t', '6 kg', '3000 m']
+    ],
+    userAnswer: ['', '', '', '']
+    },
+    { id: 28, type: 'dropdown_fill', explanation:"Tabellen viser andel av befolkningen som ønsker å bruke kulturtilbud oftere.<br/>Bruk tabellen til å sette riktig navn på søylene.",imageRight: 'bilde_28.jpg', imageWidth: '500px', imageMarginTop: '150px',
+        questionText:"<img src='bilde_28_02.jpg' style='width: 600px;' alt='Kulturtilbud'>",
+		sentences: [
+            { text: "---------------------", options: ['Kino', 'Bibliotek', 'Teater', 'Utstilling', 'Konsert', 'Sport'], correct: 'Bibliotek' },
+            { text: "", options: ['Kino', 'Bibliotek', 'Teater', 'Utstilling', 'Konsert', 'Sport'], correct: 'Konsert' },
+            { text: "", options: ['Kino', 'Bibliotek', 'Teater', 'Utstilling', 'Konsert', 'Sport'], correct: 'Sport' },
+        ], 
+        userAnswer: [null, null, null],
+    },
+    { id: 29, type: 'text', explanation: "Sofie skal lage vafler. En av vennene til Sofie er allergisk mot egg. Sofie vet at ett egg kan erstattes med 3 dl eplemos. I oppskriften står det at man trenger 7 egg.", questionText: "Hvor mange liter eplemos trenger Sofie?",unit: 'liter', imageRight: 'bilde_29.jpg', imageWidth: '500px', answer: '2,1', userAnswer: '' },
+    { id: 30, type: 'text', explanation: "De 25 elevene i 8A valgte representant til elevrådet. Prosentfordeling av stemmene vises i diagrammet.", questionText: "Hvor mange stemmer fikk eleven som ble valgt?",unit: 'stemmer', imageRight: 'bilde_30.jpg', imageWidth: '550px', answer: '9', userAnswer: '' },
+    { id: 31, type: 'true_false_table', explanation: "Målet med &#34;5 om dagen&#34; er at alle skal spise minst fem porsjoner frukt, bær eller grønnsaker hver dag.<br/>Figuren viser prosentandelen av befolkningen i Norge som spiste &#34;5 om dagen&#34; i perioden 2017–2023.", questionText: "Svar på om påstandene er riktige eller gale.", imageRight: 'bilde_31.jpg', imageWidth: '450px', 
+        statements: [
+            { text: "Prosentandelen som spiste &#34;5 om dagen&#34; i 2019, var mer enn dobbelt så stor som i 2020.", correct: 'Galt' },
+            { text: "Fra 2017 til 2023 minket prosentandelen som spiste &#34;5 om dagen&#34;, med mer enn 6 prosentpoeng.", correct: 'Galt' },
+            { text: "Prosentandelen som spiste &#34;5 om dagen&#34;, økte mest fra 2020 til 2021.", correct: 'Riktig' },
+        ], 
+        userAnswer: [null, null, null], 
+    },
+    { id: 32, type: 'mcq', explanation: "Sofie, Marie og Anna har kjøpt et telt sammen. Sofie betalte <math><mfrac><mn>1</mn><mn>4</mn></mfrac></math> av prisen, Marie betalte 50 % og Anna betalte resten, som var 1600 kr.", questionText: "Hvor mye betalte Marie?", imageRight: 'bilde_32.jpg', imageWidth: '400px', options: ['800 kr', '1600 kr', '2000 kr', '3200 kr'], correctIndex: 3, userAnswer: null },
+    { id: 33, type: 'text', explanation: "Martine skal lage pannekaker. I oppskriften står det at hun trenger 3 egg til 12 pannekaker. Martine kjøper et brett med 30 egg.", questionText: "Hvor mange pannekaker kan Martine lage med 30 egg?",unit: 'pannekaker', imageRight: 'bilde_33.jpg', imageWidth: '400px', answer: '120', userAnswer: '' },
+    { id: 34, type: 'text', explanation: "Armina skal bygge en pyramide i lego. Det øverste laget i pyramiden består av 1 kloss, det andre laget har 4 klosser, det tredje laget har 9 klosser og det fjerde laget har 16 klosser. Pyramiden fortsetter nedover med dette mønsteret.", questionText: "Hvor mange klosser er det i det sjuende laget?",unit: 'klosser', imageRight: 'bilde_34.jpg', imageWidth: '450px', answer: '49', userAnswer: '' },
+    { id: 35, type: 'multi_text', explanation: "Petter skal lage 1,2 liter med smoothie. Han skal bruke oppskriften som står i tabellen.", questionText: "Hvor mange desiliter skal han ha av hver ingrediens?",unit: 'dl', imageRight: 'bilde_35.jpg', imageWidth: '500px',
+        inputs: [
+		{ 
+	    unitBefore: 'Mengde banan:', 
+	    answer: '4', 
+            userAnswer: '',
+            unitAfter: 'dl ',
+        },
+        { 
+            unitBefore: 'Mengde jordbær:',
+            answer: '2', 
+            userAnswer: '',
+            unitAfter: 'dl',
+        },
+        { 
+            unitBefore: 'Mengde eplejuice',
+            answer: '6', 
+            userAnswer: '',
+            unitAfter: 'dl',
+        }
+    ]
+    },
+    { id: 36, type: 'text', explanation: "På en dugnad solgte et håndballag kakebokser. De hadde 81 kakebokser til sammen og solgte like mange bokser til 7 forskjellige familier. Etter dugnaden hadde de 25 bokser igjen.", questionText: "Hvor mange kakebokser kjøpte hver av de 7 familiene?",unit: 'kakebokser', imageRight: 'bilde_36.jpg', imageWidth: '450px', answer: '8', userAnswer: '' },
+    { id: 37, type: 'mcq', explanation: "Tabellen viser hvor mange skritt Omar har gått de tre første dagene i en uke. Omar går omtrent like mange skritt per dag de to neste dagene.", questionText: "Omtrent hvor mange skritt går han totalt på disse fem dagene?", imageRight: 'bilde_37.jpg', imageWidth: '200px', options: ['60 000', '180 000', '50 000', '75 000'], correctIndex: 0, userAnswer: null },
+    { id: 38, type: 'mcq', explanation: "Erik er på togstasjonen på Hamar og skal ta toget til Lillehammer. Klokken er 11.00. Før han drar, vil han spise på en kafé, noe som tar en halvtime. Han må også kjøpe en bursdagsgave, og det tar et kvarter.", questionText: "Hvilket tog er det tidligste Erik kan ta?", imageRight: 'bilde_38.jpg', imageWidth: '200px', options: ['Hamar - Lillehammer: kl.11.10', 'Hamar - Lillehammer: kl.11.25', 'Hamar - Lillehammer: kl.11.40', 'Hamar - Lillehammer: kl.11.55', 'Hamar - Lillehammer: kl.12.10'], correctIndex: 3, userAnswer: null },
+];
+
+// Initialiseringsvariabler
+let currentQuestionIndex = 0;
+let testStartTime;
+const totalQuestions = typeof questions !== 'undefined' ? questions.length : 0; 
+const questionArea = document.getElementById('question-area');
+const progressBar = document.getElementById('progress-bar');
+const prevButton = document.getElementById('prev-button');
+const nextButton = document.getElementById('next-button');
+const finishButton = document.getElementById('finish-button');
+const resultsContainer = document.getElementById('results-container');
+const testContainer = document.getElementById('test-container');
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxg3Ehlz517kAYGM0D2RD5XhiO-uJVlcyi86F0EHbix952x5FP3HJ3sZUilfDfYmcxd/exec"; // Din Apps Script URL
+
+// =========================================================================
+// DEL 3: START, RENDERING OG INPUT-FUNKSJONER (UENDRET)
+// =========================================================================
+
+function startTest() {
+    const userNameInput = document.getElementById('userName');
+    const userName = userNameInput.value.trim();
+
+    if (userName === "") {
+        alert("Vennligst skriv inn navnet ditt for å starte prøven.");
+        userNameInput.focus();
+        return;
+    }
+    window.currentUserName = userName; 
+
+    testStartTime = new Date();
+
+    document.getElementById('intro-container').style.display = 'none';
+    document.getElementById('question-area').style.display = 'block';
+    document.getElementById('navigation-area').style.display = 'flex'; 
+
+    if (totalQuestions > 0) {
+        renderQuestion(currentQuestionIndex);
+    } else {
+        questionArea.innerHTML = '<p>Ingen spørsmål er lastet inn.</p>';
+    }
+}
+
+// Function to create a standard multiple-choice question
+function createMCQQuestion(questionData) {
+    // NY LOGIKK: Sjekk om dette er oppgave 3.
+    const gridQuestions = [3, 20];
+    const isGridLayout = gridQuestions.includes(questionData.id);
+  
+    // NY LOGIKK: Definer layout-klassen basert på sjekken.
+    // Hvis ID er 3, legg til klassen 'grid-2x2-layout'. Ellers, ingen ekstra klasse.
+    const layoutClass = isGridLayout ? ' grid-2x2-layout' : ''; 
+
+    let questionHTML = `
+        <div class="question-title">${questionData.questionText}</div>
+        ${questionData.imageRight ? `<img src="${questionData.imageRight}" style="width: ${questionData.imageWidth || 'auto'}; margin-top: ${questionData.imageMarginTop || '0'};" alt="Oppgavebilde">` : ''}
+        
+        <div class="choices-container${layoutClass}"> 
+            ${questionData.options.map((option, index) => `
+                <div class="choice-container">
+                    <button class="choice-btn" data-index="${index}" onclick="selectMCQAnswer(this, ${questionData.id}, ${index})">
+                        ${option.type === 'text' ? option.value : `<img src="${option.value}" alt="${option.alt}" class="choice-image">`}
+                    </button>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="question-footer">
+            <button class="check-btn" onclick="checkAnswer(${questionData.id})" disabled>Sjekk svar</button>
+            <div class="explanation-box" id="explanation-${questionData.id}"></div>
+        </div>
+    `;
+
+    // ... (resten av funksjonen)
+    return questionHTML;
+}
+
+function renderQuestion(index) {
+    const q = questions[index];
+    questionArea.innerHTML = '';
+    resultsContainer.style.display = 'none';
+    questionArea.style.display = 'block';
+
+    let html = `
+        <div class="question-content">
+            <div class="question-main">
+                <h2>Oppgave ${q.id}</h2>
+                <p class="question-text-explanation">${q.explanation || ''}</p> 
+                <p class="question-text-main">${q.questionText}</p>
+                <div class="question-input" id="input-${q.id}">
+                </div>          
+            </div>
+            <div class="question-image" style="width: ${q.imageWidth || '400px'}; margin-top: ${q.imageMarginTop || '0'};">
+                 ${q.imageRight ? `<img src="${q.imageRight}" alt="Illustrasjon til oppgave ${q.id}">` : ''}
+            </div>
+        </div>
+    `;
+    questionArea.innerHTML = html;
+    const inputContainer = document.getElementById(`input-${q.id}`);
+
+    switch (q.type) {
+        case 'text':
+            renderText(q, inputContainer);
+            break;
+        case 'mcq':
+            renderMCQ(q, inputContainer);
+            break;
+        case 'multi_text':
+            renderMultiText(q, inputContainer);
+            break;
+        case 'dropdown_fill':
+            renderDropdownFill(q, inputContainer);
+            break;
+        case 'dropdown_fill_table': 
+            renderDropdownFillTable(q, inputContainer);
+            break;
+        case 'true_false_table':
+            renderTrueFalseTable(q, inputContainer);
+            break;
+        case 'drag_drop_table':
+            renderDragDrop(q, inputContainer);
+            break;
+        default:
+            inputContainer.innerHTML = `<p>Ukjent spørsmålstype: ${q.type}</p>`;
+    }
+    
+    updateNavigation();
+}
+
+function renderText(q, container) {
+    container.classList.add('question-type-text-container');
+    const unitText = q.unit ? `<span class="input-suffix">${q.unit}</span>` : '';
+    container.innerHTML = `
+        <div class="text-input-group">
+            <input type="text" id="answer-${q.id}" value="${q.userAnswer}" onchange="saveAnswer(event, ${q.id})" oninput="updateNavigation()">
+            ${unitText}
+        </div>
+    `;
+}
+
+
+
+function renderMultiText(q, container) {
+    container.classList.add('question-type-multi-text');
+    let multiTextHTML = q.inputs.map((input, i) => {
+        const beforeHTML = input.unitBefore ? `<span class="input-prefix">${input.unitBefore}</span>` : '';
+        const inputHTML = `
+            <input type="text" 
+                    id="answer-${q.id}-${i}" 
+                    value="${input.userAnswer}" 
+                    onchange="saveMultiTextAnswer(${q.id}, ${i}, this.value)" 
+                    oninput="updateNavigation()">
+        `;
+        const afterHTML = input.unitAfter ? `<span class="input-suffix">${input.unitAfter}</span>` : '';
+        
+        return `
+            <div class="multi-text-input-group">
+                ${beforeHTML}
+                ${inputHTML}
+                ${afterHTML}
+            </div>
+        `;
+    }).join('');
+    container.innerHTML = multiTextHTML;
+}
+
+// Function to render a multiple-choice question
+function renderMCQ(q, container) {
+    container.classList.add('question-type-mcq');
+
+    // NY LOGIKK: Sjekk om dette er oppgave 3.
+    const isGridLayout = q.id === 3;
+    const layoutClass = isGridLayout ? ' grid-2x2-layout' : ''; 
+    
+    // START: Her genererer vi HTML for ALT INNHOLDET i input-containeren
+    let mcqHTML = `
+        <div class="choices-container${layoutClass}">
+            ${q.options.map((option, index) => {
+                let contentHTML;
+                
+                // Håndterer både bildeobjekter (som i oppgave 3) og tekststrenger (som i oppgave 2)
+                if (typeof option === 'object' && option.type === 'image') {
+                    contentHTML = `<img src="${option.value}" alt="${option.alt || 'Bildealternativ'}" class="choice-image">`;
+                } else {
+                    contentHTML = option.value || option; // Bruker ren tekst
+                }
+
+                return `
+                    <label class="mcq-option ${q.userAnswer === index ? 'selected' : ''}" data-index="${index}">
+                        <input type="radio" name="mcq-${q.id}" value="${index}" ${q.userAnswer === index ? 'checked' : ''} onclick="saveMCQAnswer(${q.id}, ${index}); renderQuestion(${currentQuestionIndex}); setTimeout(updateNavigation, 0);">
+                        <span class="mcq-content">${contentHTML}</span>
+                    </label>
+                `;
+            }).join('')}
+        </div>
+    `;
+    // SLUTT: Innholdet som skal inn i containeren (input-container)
+
+    container.innerHTML = mcqHTML;
+    
+    // ... Du kan fjerne resten av event-lytterne hvis du bruker onclick i input-taggen, 
+    // men den originale koden din hadde et klikk-event på `label` som kaller `saveMCQAnswer` og `renderQuestion`. 
+    // Jeg beholdt den funksjonaliteten med `onclick` i `input`-taggen ovenfor.
+
+    // Fjern den gamle event-lytteren her hvis du bruker den nye `onclick`-metoden
+    /* container.querySelectorAll('.mcq-option').forEach(label => {
+        label.addEventListener('click', function() {
+            // ... (gammel kode)
+        });
+    });
+    */
+}
+
+
+// Type: dropdown_fill
+function renderDropdownFill(q, container) {
+    const modeClass = q.displayMode === 'vertical' ? 
+                      'dropdown-fill-vertical' : 
+                      'dropdown-fill-horizontal';
+                      
+    container.classList.add('question-type-dropdown-container', modeClass);
+    
+    let dropdownHTML = q.sentences.map((sentence, sIndex) => {
+        let optionsHTML = sentence.options.map(option => `
+            <option value="${option}" ${q.userAnswer[sIndex] === option ? 'selected' : ''}>${option}</option>
+        `).join('');
+        
+        return `
+            <div class="dropdown-fill-item"> 
+                ${q.displayMode === 'vertical' ? `<label for="select-${q.id}-${sIndex}">Plass ${sIndex + 1}:</label>` : `<span>${sentence.text || ''}</span>`}
+                <select id="select-${q.id}-${sIndex}" onchange="saveDropdownAnswer(${q.id}, ${sIndex}, this.value)">
+                    <option value="">Velg...</option>
+                    ${optionsHTML}
+                </select>
+                ${q.displayMode !== 'vertical' ? `<span>${sentence.textEnd || ''}</span>` : ''} 
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = dropdownHTML;
+}
+
+function styleDropdown(selectElement) {
+    // Dette er kun for styling/visuell tilbakemelding underveis, og kan være tom.
+}
+
+function renderDropdownFillTable(q, container) {
+    container.classList.add('question-type-table', 'dropdown-fill-table');
+    
+    let thHTML = `<th>${q.tableHeader || 'Emne'}</th>`; 
+
+    q.sentences.forEach((sentence, sIndex) => {
+        let optionsHTML = sentence.options.map(option => `
+            <option value="${option}" ${q.userAnswer && q.userAnswer[sIndex] === option ? 'selected' : ''}>${option}</option>
+        `).join('');
+        
+        thHTML += `
+            <th>
+                <select 
+                    id="select-${q.id}-${sIndex}" 
+                    onchange="saveDropdownAnswer(${q.id}, ${sIndex}, this.value); styleDropdown(this); updateNavigation();">
+                    <option value="">Velg overskrift...</option>
+                    ${optionsHTML}
+                </select>
+            </th>
+        `;
+    });
+
+    let tbodyHTML = q.tableData.map(rowData => {
+        let tdHTML = rowData.map(cellData => `<td>${cellData}</td>`).join('');
+        return `<tr>${tdHTML}</tr>`;
+    }).join('');
+
+    let tableHTML = `
+        <table class="fugl-tabell">
+            <thead>
+                <tr id="table-header-row">
+                    ${thHTML}
+                </tr>
+            </thead>
+            <tbody>
+                ${tbodyHTML}
+            </tbody>
+        </table>
+    `;
+    
+    container.innerHTML = tableHTML;
+}
+
+function renderTrueFalseTable(q, container) {
+    container.classList.add('question-type-table');
+    let tableHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Påstand</th>
+                    <th>Riktig</th>
+                    <th>Galt</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${q.statements.map((statement, sIndex) => `
+                    <tr>
+                        <td>${statement.text}</td>
+                        <td><input type="radio" name="t-f-${q.id}-${sIndex}" value="Riktig" ${q.userAnswer && q.userAnswer[sIndex] === 'Riktig' ? 'checked' : ''} onclick="saveTFAnswer(${q.id}, ${sIndex}, 'Riktig')"></td>
+                        <td><input type="radio" name="t-f-${q.id}-${sIndex}" value="Galt" ${q.userAnswer && q.userAnswer[sIndex] === 'Galt' ? 'checked' : ''} onclick="saveTFAnswer(${q.id}, ${sIndex}, 'Galt')"></td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    container.innerHTML = tableHTML;
+}
+
+function renderDragDrop(q, container) {
+    container.classList.add('question-type-drag-drop');
+    // For å unngå feil ved første lasting, sjekk om q.dragDropHTML er definert
+    container.innerHTML = q.dragDropHTML || '';  
+    
+    // Fyll mål-tabellen med lagrede svar
+    const targetTable = document.getElementById('target-table');
+    if (!targetTable) return; // Avslutt hvis tabellen ikke finnes
+
+    // Initialiser userAnswer hvis den ikke er et array
+    if (!Array.isArray(q.userAnswer) || q.userAnswer.length === 0) {
+        // Antar at target-tabellen har celler for hvert svar
+        const numTargetCells = targetTable.querySelectorAll('td').length;
+        q.userAnswer = Array(numTargetCells).fill(null);
+    }
+    
+    q.userAnswer.forEach((dragId, index) => {
+        const targetCell = targetTable.querySelector(`[data-row-index="${index}"]`);
+        if (targetCell) {
+             // Nullstiller cellen for å vise 'Slipp her' hvis svaret er tomt
+             targetCell.innerHTML = `Slipp her`;
+             targetCell.style.color = '#999';
+             targetCell.style.fontSize = '0.9em';
+        }
+
+        if (dragId) {
+            const sourceItem = document.querySelector(`[data-drag-id="${dragId}"]`);
+            if (sourceItem) {
+                targetCell.innerHTML = createDragItemHTML(dragId);
+                sourceItem.closest('td').style.display = 'none'; // Skjul fra kildetabellen
+                targetCell.style.color = 'initial';
+                targetCell.style.fontSize = 'initial';
+            }
+        }
+    });
+
+    // Legg til Drag & Drop lyttere
+    addDragDropListeners(q.id);
+}
+
+function createDragItemHTML(dragId) {
+// Finner DIV-en som inneholder bildet i kildetabellen
+    const originalDragItem = document.querySelector(`#source-table [data-drag-id="${dragId}"] .drag-item`); 
+    // Hvis DIV-en eksisterer, får vi tak i bildekilden
+    const imgSrc = originalDragItem ? originalDragItem.querySelector('img').src : '';
+    return `
+        <div class="drag-item" draggable="true" data-drag-id="${dragId}">
+            <img src="${imgSrc}">
+            <span class="remove-item" onclick="removeItem('${dragId}')">X</span>
+        </div>
+    `;
+}
+
+// =========================================================================
+// DEL 4: LAGRING, NAVIGASJON OG RESULTATER (OPPDATERING AV POENG)
+// =========================================================================
+
+// --- LAGRINGSFUNKSJONER (UENDRET) ---
+function saveAnswer(event, id) {
+    const question = questions.find(q => q.id === id);
+    if (question) {
+        question.userAnswer = event.target.value;
+    }
+    updateNavigation();
+}
+
+function saveMCQAnswer(id, index) {
+    const question = questions.find(q => q.id === id);
+    if (question) {
+        question.userAnswer = index;
+    }
+    updateNavigation();
+}
+
+function saveDropdownAnswer(id, sIndex, value) {
+    const question = questions.find(q => q.id === id);
+    if (question && question.userAnswer) {
+        question.userAnswer[sIndex] = value || null;
+    }
+    updateNavigation();
+}
+
+function saveTFAnswer(id, sIndex, value) {
+    const question = questions.find(q => q.id === id);
+    if (question && question.userAnswer) {
+        question.userAnswer[sIndex] = value;
+    }
+    updateNavigation();
+}
+
+function saveMultiTextAnswer(id, inputIndex, value) {
+    const question = questions.find(q => q.id === id);
+    if (question && question.inputs && question.inputs[inputIndex]) {
+        question.inputs[inputIndex].userAnswer = value;
+    }
+    updateNavigation();
+}
+
+function saveDragDropAnswer(id) {
+    const question = questions.find(q => q.id === id);
+    const targetTable = document.getElementById('target-table');
+    if (!targetTable || !question) {
+        return;
+    }
+
+    const targetCells = targetTable.querySelectorAll('td');
+    const newAnswer = Array.from(targetCells).map(cell => {
+        const dragItem = cell.querySelector('.drag-item');
+        return dragItem ? dragItem.getAttribute('data-drag-id') : null;
+    });
+    question.userAnswer = newAnswer;
+}
+
+// --- NAVIGASJON (UENDRET) ---
+function navigate(direction) {
+    const currentQ = questions[currentQuestionIndex];
+    if (currentQ && currentQ.type === 'drag_drop_table') { 
+        saveDragDropAnswer(currentQ.id); 
+    }
+
+    let newIndex = currentQuestionIndex + direction;
+
+    if (newIndex >= 0 && newIndex < totalQuestions) {
+        currentQuestionIndex = newIndex;
+        renderQuestion(currentQuestionIndex);
+        window.scrollTo(0, 0);
+    }
+}
+
+function updateNavigation() {
+    // Dette er funksjonen du sendte (sjekker kun om ALLE deler er fylt ut)
+    const completedCount = questions.filter(q => {
+        if (q.type === 'multi_text') {
+            return q.inputs.every(input => input.userAnswer !== null && input.userAnswer !== '');
+        }
+        if (Array.isArray(q.userAnswer)) {
+            return q.userAnswer.every(a => a !== null && a !== '');
+        }
+        return q.userAnswer !== null && q.userAnswer !== '';
+    }).length; 
+    
+    progressBar.innerHTML = `
+        Oppgave <span class="progress-indicator">${currentQuestionIndex + 1}</span> av ${totalQuestions} 
+        (${completedCount} fullført)
+    `;
+
+    prevButton.disabled = currentQuestionIndex === 0;
+    nextButton.style.display = currentQuestionIndex === totalQuestions - 1 ? 'none' : 'inline-block';
+    finishButton.style.display = currentQuestionIndex === totalQuestions - 1 ? 'inline-block' : 'none';
+    
+    if (completedCount === totalQuestions) {
+        finishButton.style.backgroundColor = '#4CAF50';
+    } else {
+        finishButton.style.backgroundColor = '#007bff';
+    }
+}
+
+// --- DRAG & DROP LOGIKK (UENDRET) ---
+let draggedItem = null;
+
+function addDragDropListeners(id) {
+    const sourceTable = document.getElementById('source-table');
+    const targetTable = document.getElementById('target-table');
+    if (!sourceTable || !targetTable) return;
+
+    document.removeEventListener('dragstart', handleDragStart);
+    document.addEventListener('dragstart', handleDragStart);
+
+    function handleDragStart(e) {
+        const draggableElement = e.target.closest('[draggable="true"]');
+        if (draggableElement && (draggableElement.closest('#source-table') || draggableElement.closest('#target-table'))) {
+             draggedItem = draggableElement;
+             e.dataTransfer.setData('text/plain', draggableElement.getAttribute('data-drag-id'));
+             setTimeout(() => draggableElement.classList.add('dragging'), 0);
+        }
+    }
+    
+    document.removeEventListener('dragend', handleDragEnd);
+    document.addEventListener('dragend', handleDragEnd);
+
+    function handleDragEnd(e) {
+        if (draggedItem) {
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        }
+        document.querySelectorAll('#target-table td').forEach(cell => cell.classList.remove('drag-over-cell'));
+        saveDragDropAnswer(id);
+        updateNavigation();
+    }
+
+    targetTable.querySelectorAll('td').forEach(cell => {
+        cell.removeEventListener('dragover', handleDragOver);
+        cell.removeEventListener('dragleave', handleDragLeave);
+        cell.removeEventListener('drop', handleDrop);
+        
+        cell.addEventListener('dragover', handleDragOver);
+        cell.addEventListener('dragleave', handleDragLeave);
+        cell.addEventListener('drop', handleDrop);
+    });
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        if (!this.querySelector('.drag-item') || (draggedItem && draggedItem.closest('#target-table'))) { 
+             this.classList.add('drag-over-cell');
+        }
+    }
+
+    function handleDragLeave() {
+        this.classList.remove('drag-over-cell');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over-cell');
+
+        const dragId = e.dataTransfer.getData('text/plain');
+        const sourceElement = document.querySelector(`[data-drag-id="${dragId}"]`);
+        
+        if (sourceElement) {
+            const existingItem = this.querySelector('.drag-item');
+            if (existingItem && existingItem !== sourceElement.closest('.drag-item')) {
+                 removeItem(existingItem.getAttribute('data-drag-id'));
+            }
+
+            const sourceCellInSourceTable = sourceTable.querySelector(`[data-drag-id="${dragId}"]`);
+            
+            if (sourceCellInSourceTable && sourceElement.closest('#source-table')) {
+                sourceCellInSourceTable.closest('td').style.display = 'none';
+                this.innerHTML = createDragItemHTML(dragId);
+            } else if (sourceElement.closest('#target-table')) {
+                const originalTargetCell = sourceElement.closest('td');
+                
+                const tempContent = originalTargetCell.innerHTML;
+                originalTargetCell.innerHTML = this.innerHTML;
+                this.innerHTML = tempContent;
+                
+                if (!originalTargetCell.querySelector('.drag-item')) {
+                    originalTargetCell.innerHTML = `Slipp her`;
+                    originalTargetCell.style.color = '#999';
+                    originalTargetCell.style.fontSize = '0.9em';
+                } else {
+                    originalTargetCell.style.color = 'initial';
+                    originalTargetCell.style.fontSize = 'initial';
+                }
+            }
+            
+            if (this.querySelector('.drag-item')) {
+                 this.style.color = 'initial';
+                 this.style.fontSize = 'initial';
+            } else {
+                 this.innerHTML = `Slipp her`;
+                 this.style.color = '#999';
+                 this.style.fontSize = '0.9em';
+            }
+        }
+        saveDragDropAnswer(id);
+    }
+    
+    targetTable.removeEventListener('click', handleRemoveClick);
+    targetTable.addEventListener('click', handleRemoveClick);
+
+    function handleRemoveClick(e) {
+        if (e.target && e.target.classList.contains('remove-item')) {
+            const dragId = e.target.closest('.drag-item').getAttribute('data-drag-id');
+            removeItem(dragId);
+        }
+    }
+}
+    
+function removeItem(dragId) {
+    const targetItem = document.querySelector(`#target-table .drag-item[data-drag-id="${dragId}"]`);
+    if (!targetItem) return;
+
+    const targetCell = targetItem.closest('td');
+    if (targetCell) {
+        targetCell.innerHTML = `Slipp her`;
+        targetCell.style.color = '#999';
+        targetCell.style.fontSize = '0.9em';
+    }
+
+    const sourceCell = document.querySelector(`#source-table [data-drag-id="${dragId}"]`);
+    if (sourceCell) {
+         sourceCell.closest('td').style.display = 'table-cell';
+    }
+    
+    const currentQ = questions[currentQuestionIndex];
+    if (currentQ && currentQ.type === 'drag_drop_table') {
+        saveDragDropAnswer(currentQ.id);
+    }
+    updateNavigation();
+}
+
+
+// --- 💡 NY FUNKSJON: Beregner poeng for del-oppgaver ---
+function calculatePartialScore(q) {
+    let correctCount = 0;
+    let totalItems = 0;
+
+    switch (q.type) {
+        case 'multi_text':
+            totalItems = q.inputs.length;
+            if (q.inputs) {
+                q.inputs.forEach(input => {
+                    if (input.userAnswer && input.userAnswer.toLowerCase().trim() === input.answer.toLowerCase().trim()) {
+                        correctCount++;
+                    }
+                });
+            }
+            return { correct: correctCount, total: totalItems };
+
+        case 'dropdown_fill':
+        case 'dropdown_fill_table':
+            // Både dropdown_fill og dropdown_fill_table bruker 'sentences' for deler
+            totalItems = q.sentences.length;
+            if (q.userAnswer && q.sentences) {
+                q.userAnswer.forEach((answer, i) => {
+                    if (answer === q.sentences[i].correct) {
+                        correctCount++;
+                    }
+                });
+            }
+            return { correct: correctCount, total: totalItems };
+            
+        case 'true_false_table':
+            totalItems = q.statements.length;
+            if (q.userAnswer && q.statements) {
+                q.userAnswer.forEach((answer, i) => {
+                    if (answer === q.statements[i].correct) {
+                        correctCount++;
+                    }
+                });
+            }
+            return { correct: correctCount, total: totalItems };
+            
+        case 'drag_drop_table':
+            totalItems = q.correctOrder.length;
+            if (q.userAnswer && q.correctOrder) {
+                q.userAnswer.forEach((answer, i) => {
+                    // Sjekk om riktig dragId er i riktig posisjon
+                    if (answer === q.correctOrder[i]) {
+                        correctCount++;
+                    }
+                });
+            }
+            return { correct: correctCount, total: totalItems };
+
+        case 'text':
+        case 'mcq':
+        default:
+            // For enkeltsvar returneres 1 hvis riktig, 0 ellers
+            const isCorrect = (q.type === 'text' && q.userAnswer && q.userAnswer.toLowerCase().trim() === q.answer.toLowerCase().trim()) ||
+                              (q.type === 'mcq' && q.userAnswer === q.correctIndex);
+            return { correct: isCorrect ? 1 : 0, total: 1 };
+    }
+}
+
+// 6. RESULTATVISNING (OPPDATERT FOR DEL-POENG)
+function showResults() {
+    const userName = document.getElementById('userName').value.trim() || 'Anonym';
+    
+    // Lagring av siste drag_drop_table hvis det er den aktive oppgaven
+    const currentQ = questions[currentQuestionIndex];
+    if (currentQ && currentQ.type === 'drag_drop_table') { 
+         saveDragDropAnswer(currentQ.id); 
+    }
+    
+    // 🔥 NYTT: Stopp tidtakeren og beregn tidsforskjellen
+    const testEndTime = new Date();
+    const elapsedTimeMs = testEndTime - testStartTime;
+    const totalSeconds = Math.round(elapsedTimeMs / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const timeSpent = `${minutes} minutter og ${seconds} sekunder`;
+
+    // Visningskontroll
+    questionArea.style.display = 'none';
+    document.getElementById('navigation-area').style.display = 'none';
+    resultsContainer.style.display = 'block';
+    document.getElementById('sub-header').innerHTML = 'Resultater';
+
+    let resultsHTML = '';
+    let totalScore = 0; 
+    let totalPossibleScore = 0; 
+
+    questions.forEach(q => {
+        const score = calculatePartialScore(q); // Henter del-poeng
+        totalScore += score.correct;
+        totalPossibleScore += score.total;
+        
+        let isFullyCorrect = score.correct === score.total && score.total > 0;
+        let feedback = '';
+        
+        // --- Genererer tilbakemelding (Feedback) ---
+        switch (q.type) {
+            case 'text':
+            case 'mcq':
+                // Original logikk for enkeltsvar, men bruker nå 'score.correct' for tilstanden
+                const isCorrect = score.correct === 1;
+                const userAnswer = q.type === 'text' ? q.userAnswer : q.options[q.userAnswer] || 'Ikke besvart';
+                const correctAnswer = q.type === 'text' ? q.answer : q.options[q.correctIndex];
+                feedback = `Ditt svar: **${userAnswer || 'Ikke besvart'}**`;
+                if (!isCorrect) feedback += `<span class="correct-answer-text">Riktig svar: ${correctAnswer}</span>`;
+                break;
+                
+            case 'multi_text':
+                // Oppdatert tilbakemelding for del-poeng
+                feedback = q.inputs.map(input => {
+                    const user = input.userAnswer || 'Ikke besvart';
+                    const correct = input.answer;
+                    const correctStatus = user.toLowerCase().trim() === correct.toLowerCase().trim();
+                    const statusClass = correctStatus ? 'correct-answer' : 'incorrect-answer-item';
+                    const text = `${input.unitBefore || ''} <span class="${statusClass}">${user}</span> ${input.unitAfter || ''}`;
+                    return `${text} ${!correctStatus ? `<span class="correct-answer-text">(Skulle vært: ${correct})</span>` : ''}`;
+                }).join('<br>');
+                break;
+
+            case 'dropdown_fill':
+            case 'dropdown_fill_table':
+                // Oppdatert tilbakemelding for del-poeng
+                feedback = q.sentences.map((s, i) => {
+                    const correct = s.correct;
+                    const user = (q.userAnswer && q.userAnswer[i]) || 'Ikke valgt';
+                    const correctStatus = user === correct;
+                    const statusClass = correctStatus ? 'correct-answer' : 'incorrect-answer';
+                    const label = s.text ? s.text.replace('? ', '?:') : 'Kolonne ' + (i+1) + ':';
+                    return `${label} <span class="${statusClass}">${user}</span> ${!correctStatus ? `<span class="correct-answer-text">(Skulle vært: ${correct})</span>` : ''}`;
+                }).join('<br>');
+                break;
+                
+            case 'true_false_table':
+                 // Oppdatert tilbakemelding for del-poeng
+                feedback = `
+                    <p>Dine del-poeng: ${score.correct} av ${score.total} riktige utsagn.</p>
+                    <table>
+                        ${q.statements.map((s, i) => {
+                            const user = (q.userAnswer && q.userAnswer[i]) || 'N/A';
+                            const correct = s.correct;
+                            const correctStatus = user === correct;
+                            const statusClass = correctStatus ? 'correct-answer' : 'incorrect-answer';
+                            return `
+                                <tr>
+                                    <td>${s.text}</td>
+                                    <td>Ditt svar: <span class="${statusClass}">${user}</span></td>
+                                    ${!correctStatus ? `<td>Riktig svar: <span class="correct-answer-text">${correct}</span></td>` : '<td></td>'}
+                                </tr>
+                            `;
+                        }).join('')}
+                    </table>
+                `;
+                break;
+                
+            case 'drag_drop_table':
+                // Oppdatert tilbakemelding for del-poeng (viser korrekt/feil per plassering)
+                feedback = `
+                    <p>Dine del-poeng: ${score.correct} av ${score.total} riktige i rekkefølgen.</p>
+                    <div class="drag-drop-table-container">
+                        <table style="width: 250px;"><thead><tr><th>Svar (Rekkefølge)</th></tr></thead>
+                                <tbody>
+                                    ${q.userAnswer.map((dragId, i) => {
+                                        const correctStatus = dragId === q.correctOrder[i];
+                                        const statusClass = correctStatus ? 'correct-answer' : 'incorrect-answer';
+                                        const displayUser = dragId ? dragId.replace('drag-', 'Kart ') : 'Tom';
+                                        const displayCorrect = q.correctOrder[i].replace('drag-', 'Kart ');
+                                        return `<tr><td class="${statusClass}">Rekkefølge ${i+1}: ${displayUser} ${!correctStatus ? ` <span class="correct-answer-text">(Skulle vært: ${displayCorrect})</span>` : ''}</td></tr>`;
+                                    }).join('')}
+                                </tbody>
+                        </table>
+                    </div>
+                `;
+                break;
+        }
+        // --- Slutt Tilbakemelding ---
+
+        // Viser nå også delvis riktige oppgaver
+        if (!isFullyCorrect) {
+            resultsHTML += `
+                <div class="result-item">
+                    <h3>Oppgave ${q.id}: <span class="incorrect-answer">Feil / Delvis riktig (${score.correct} av ${score.total} del-poeng)</span></h3>
+                    <p>${q.questionText}</p>
+                    <p>${feedback}</p>
+                </div>
+            `;
+        }
+    });
+
+    const percentage = Math.round((totalScore / totalPossibleScore) * 100);
+    
+    // 1. Forbered dataene som skal sendes til Google Sheets (Bruker totalScore/totalPossibleScore)
+    const resultData = {
+        navn: userName, 
+        riktige: totalScore, // Antall riktige del-svar
+        total: totalPossibleScore, // Totalt antall mulige del-svar
+        prosent: percentage,
+        tidBruktSekunder: totalSeconds
+    };
+    
+    // 2. Send dataen til Google Apps Script
+    const statusElementId = 'save-status';
+    
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: new URLSearchParams(resultData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Resultatet ble lagret i Google Sheets:', data);
+        const statusElement = document.getElementById(statusElementId);
+        if (statusElement) {
+             statusElement.innerHTML = '<span style="color: green;">✅ Resultatet er lagret i Google Disk!</span>';
+        }
+    })
+    .catch(error => {
+        console.error('Feil ved lagring til Google Sheets:', error);
+        const statusElement = document.getElementById(statusElementId);
+        if (statusElement) {
+             statusElement.innerHTML = '<span style="color: red;">❌ Feil ved lagring til Google Disk!</span>';
+        }
+    });
+
+    // 3. Oppdater resultatsvisningen
+    const scoreHTML = `
+        <h2>Prøven fullført, ${userName}!</h2>
+        <p id="score-summary">
+            Du fikk ${totalScore} av ${totalPossibleScore} mulige poeng.
+        </p>
+        <p>Brukt tid: ${timeSpent}</p>
+        <p id="${statusElementId}">Lagrer resultat til Google Disk...</p>
+        <hr>
+        <h3>Følgende spørsmål ble besvart feil, delvis riktig eller ikke besvart:</h3>
+        ${resultsHTML.length > 0 ? resultsHTML : '<p style="color: green; font-size: 1.1em;">🥳 Alle spørsmål er riktig besvart!</p>'}
+    `;
+    resultsContainer.innerHTML = scoreHTML;
+}
+
+// 7. INITIALISERING: Gjør funksjoner tilgjengelig globalt
+window.startTest = startTest;
+window.navigate = navigate;
+window.showResults = showResults;
+window.saveAnswer = saveAnswer;
+window.saveMCQAnswer = saveMCQAnswer;
+window.saveMultiTextAnswer = saveMultiTextAnswer;
+window.saveDropdownAnswer = saveDropdownAnswer;
+window.saveTFAnswer = saveTFAnswer;
+window.removeItem = removeItem; 
+window.saveDragDropAnswer = saveDragDropAnswer;
+window.renderDropdownFillTable = renderDropdownFillTable; 
+window.styleDropdown = styleDropdown;
+// window.calculatePartialScore = calculatePartialScore; // Kan kommenteres inn for testing
+</script>
+
+</body>
+</html>
